@@ -48,6 +48,8 @@ Keep responsibilities separated. Do not move unrelated functionality between mod
 
 Do not modify dependency versions or the lockfile unless the task explicitly requires it and the changes have been reviewed.
 
+When a task requires it, report the outcome of `npm audit` in context: state which advisories affect runtime (`npm audit --omit=dev`) versus dev/test tooling (`npm audit`). Never run `npm audit fix --force`; it forces breaking major upgrades (for example vitest 2.x to 5.x) and is prohibited under Section 8. If audit findings touch only dev/test dependencies and the current tests pass, keep the pinned versions, note the known advisories and the planned upgrade window, and let a human approve the upgrade as a separate reviewed task.
+
 ## 4. Safe Commands
 
 The following commands are allowed for normal development and verification:
@@ -59,6 +61,14 @@ npm run build
 npm run typecheck
 npm run dev -- <command>
 ```
+
+Any CLI verification run (`npm run dev -- ...`) must target a temporary data file so the real data is never touched by checks:
+
+```bash
+EXPENSE_FILE=/tmp/expense-calculator-test.json npm run dev -- summary 2026-11
+```
+
+Use `data/expenses.json` only when the task is explicitly about the user's real expense data.
 
 Use the following commands to inspect the repository:
 
