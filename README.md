@@ -56,4 +56,3 @@ tests/              Vitest unit tests
 - A calculation never mixes currencies; mixed currencies throw `MixedCurrencyError`.
 - Budget warning threshold is 80% of the limit.
 - `JsonFileStorage` is not safe for concurrent writers (single-user, single-process design).
-- The CLI treats the month range as `01`-`31`; the calculator itself filters by exact date.
