@@ -74,6 +74,12 @@ function stateFor(spentCents: number, limitCents: number): BudgetState {
   return "ok";
 }
 
+/** Returns the expenses belonging to one calendar month (YYYY-MM). */
+export function expensesInMonth(expenses: readonly Expense[], month: string): Expense[] {
+  const validMonth = validateMonth(month);
+  return expenses.filter((e) => e.date.startsWith(`${validMonth}-`));
+}
+
 /** Budget status for one calendar month (YYYY-MM). */
 export function budgetStatus(
   expenses: readonly Expense[],
@@ -82,7 +88,7 @@ export function budgetStatus(
 ): BudgetStatus {
   const validMonth = validateMonth(month);
   const checked = validateBudget(budget);
-  const inMonth = expenses.filter((e) => e.date.startsWith(`${validMonth}-`));
+  const inMonth = expensesInMonth(expenses, validMonth);
   const currency = currencyOf(inMonth);
   const total = totalCents(inMonth);
   const spentByCategory = new Map(

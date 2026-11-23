@@ -4,6 +4,7 @@ import {
   ValidationError,
   breakdownByCategory,
   budgetStatus,
+  expensesInMonth,
   formatMoney,
   toCents,
   totalCents,
@@ -66,7 +67,7 @@ function run(argv: string[]): string {
     }
     case "summary": {
       const month = positional[0] ?? new Date().toISOString().slice(0, 7);
-      const inMonth = store.list({ from: `${month}-01`, to: `${month}-31` });
+      const inMonth = expensesInMonth(store.list(), month);
       const status = budgetStatus(
         inMonth,
         flags.limit === undefined ? {} : { monthlyLimitCents: toCents(Number(flags.limit)) },

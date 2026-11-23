@@ -3,6 +3,7 @@ import {
   MixedCurrencyError,
   breakdownByCategory,
   budgetStatus,
+  expensesInMonth,
   filterExpenses,
   formatMoney,
   totalCents,
@@ -86,6 +87,40 @@ describe("budgetStatus", () => {
   it("rejects invalid months and limits", () => {
     expect(() => budgetStatus(data, {}, "2026-13")).toThrow(ValidationError);
     expect(() => budgetStatus(data, { monthlyLimitCents: -5 }, "2026-11")).toThrow(ValidationError);
+  });
+});
+
+describe("expensesInMonth", () => {
+  const data = [
+    make(1, "food", "2026-02-27"),
+    make(2, "food", "2026-02-28"),
+    make(4, "rent", "2026-04-30"),
+    make(8, "food", "2026-03-01"),
+    make(16, "food", "2027-02-01"), // same month number, different year
+  ];
+
+  it("selects February without constructing day 31", () => {
+    const result = expensesInMonth(data, "2026-02");
+    expect(result).toHaveLength(2);
+    expect(result.every((e) => e.date.startsWith("2026-02-"))).toBe(true);
+  });
+
+  it("selects a 30-day month", () => {
+    const result = expensesInMonth(data, "2026-04");
+    expect(result).toHaveLength(1);
+    expect(result[0]?.date).toBe("2026-04-30");
+  });
+
+  it("excludes expenses outside the selected month", () => {
+    expect(expensesInMonth(data, "2026-03")).toHaveLength(1);
+    expect(expensesInMonth(data, "2027-02")).toHaveLength(1);
+    expect(expensesInMonth([], "2026-02")).toHaveLength(0);
+  });
+
+  it("rejects invalid month input", () => {
+    expect(() => expensesInMonth(data, "2026-13")).toThrow(ValidationError);
+    expect(() => expensesInMonth(data, "2026-02-31")).toThrow(ValidationError);
+    expect(() => expensesInMonth(data, "not-a-month")).toThrow(ValidationError);
   });
 });
 
